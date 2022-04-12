@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/cheggaaa/pb v1.0.29
 	github.com/gorpher/gone v1.3.8
+	github.com/jlaffaye/ftp v0.0.0-20211029032751-b1140299f4df
 )
 
 require (
