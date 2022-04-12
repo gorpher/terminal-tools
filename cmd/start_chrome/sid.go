@@ -5,11 +5,13 @@ import (
 	"io"
 	"os/exec"
 	"strings"
+	"syscall"
 )
 
 func GetSID() string {
 	reader := &bytes.Buffer{}
 	cmd := exec.Command("query", "session")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	cmd.Stdout = reader
 	cmd.Run()
 	for {

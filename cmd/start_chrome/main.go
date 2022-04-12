@@ -4,15 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorpher/gone"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"wuxia"
 )
 
 func printUsage() {
-	fmt.Println("start_chrome [chrome安装位置] [工作路径]\n比如：start_chrome.exe \"C:/Program Files/Google/Chrome/Application/chrome.exe\"  \"D:/Google\" http://www.baidu.com  ")
+	text := "start_chrome [chrome安装位置] [工作路径]\n比如：start_chrome.exe \"C:/Program Files/Google/Chrome/Application/chrome.exe\"  \"D:/Google\" http://www.baidu.com  "
+	fmt.Println(text)
+	ioutil.WriteFile("output.log", []byte(text), os.ModePerm)
 }
 
 // windows下chrome程序多开
@@ -30,20 +32,21 @@ func main() {
 		uuid = gone.ID.SString()
 	}
 	homePath := os.Getenv("homepath")
-	fmt.Println(filepath.Clean(homePath))
-
 	defaultDir := filepath.Join(workDir, "default_dir")
 	if _, err := os.Stat(defaultDir); err != nil {
 		os.MkdirAll(defaultDir, os.ModePerm)
 	}
 	userDataDir := filepath.Join(workDir, "user_data_dir", filepath.Clean(homePath), uuid)
-	err := wuxia.CopyDir(defaultDir, userDataDir)
-	if err != nil {
-		log.Fatalln(err)
+	if _, err := os.Stat(userDataDir); err != nil {
+		os.MkdirAll(userDataDir, os.ModePerm)
+		err = XCopy(defaultDir, userDataDir)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 	targs := []string{fmt.Sprintf("--user-data-dir=%s", userDataDir)}
 	targs = append(targs, args[2:]...)
-	err = exec.Command(chrome, targs...).Start()
+	err := exec.Command(chrome, targs...).Start()
 	if err != nil {
 		log.Fatalln(err)
 	}
